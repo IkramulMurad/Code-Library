@@ -1,0 +1,21 @@
+1. Euler path
+2. SCC
+3. KMP
+4. Z
+5. Suffix array
+6. Convex Hull
+7. Dijkstra
+8. Bellman-Ford
+9. Floyd-Warshall
+10. BIT
+11. Segment tree
+12. Articulation point/bridge
+13. MST
+14. Backtracking
+15. Ternary search
+16. Gaussian elimination
+17. Matrix exponentiation
+18. Hash
+19. Trie
+20. Chinese remainder theorem
+21. Aho Corasick
