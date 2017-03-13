@@ -104,10 +104,48 @@ line points2line(point a, point b){
     return l;
 }
 
+bool areParallel(line a, line b){
+    return (abs(a.a-b.a)<eps and abs(a.b-b.b)<eps);
+}
+
+bool areSame(line a, line b){
+    return (areParallel(a,b) and abs(a.c-b.c)<eps);
+}
+
+/*
+    a1x+b1y+c1=0
+    a2x+b2y+c2=0
+
+    so, y=(-a1x-c1)/b1
+    and y=(-a2x-c2)/b2
+
+    hence, (-a1x-c1)/b1=(-a2x-c2)/b2
+    or, x(a2b1-a1b2)=b2c1-b1c2
+    so, x=(b2c1-b1c2)/(a2b1-a1b2)
+*/
+
+bool areIntersect(line a, line b, point& p){
+    if(areParallel(a,b)) return false;
+
+    p.x=(b.b*a.c-a.b*b.c)/(b.a*a.b-a.a*b.b);
+
+    //checking vertical line
+    //if one line is vertical then b=0 and
+    //other line is not vertical as they are not parallel
+    if(abs(a.b)>eps) p.y=-(a.a*p.x+a.c);
+    else p.y=-(b.a*p.x+b.c);
+    return true;
+}
+
 int main()
 {
-    point a(3,2), b(6,5), c(10,3);
-    c=rotate(c,77);
-    cout<<c.x<<" "<<c.y<<endl;
+    line a=points2line(point(1,1),point(5,1));
+    line b=points2line(point(6,5),point(6,4));
+
+    point p;
+    cout<<areIntersect(a,b,p)<<endl;
+    cout<<p.x<<" "<<p.y<<endl;
+
+
     return 0;
 }
