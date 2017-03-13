@@ -19,3 +19,4 @@
 19. Trie
 20. Chinese remainder theorem
 21. Aho Corasick
+22. Extended Euclid
