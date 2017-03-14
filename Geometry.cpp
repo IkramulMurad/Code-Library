@@ -137,15 +137,60 @@ bool areIntersect(line a, line b, point& p){
     return true;
 }
 
+//vector
+struct Vector{
+    double x,y;
+    Vector(double _x, double _y) : x(_x), y(_y) {}
+};
+
+//caution, 1st parameter will be the 1st end of a vector
+//2nd parameter is the growing/last end in the direction
+Vector points2vector(point a, point b){
+    return Vector(b.x-a.x, b.y-a.y);
+}
+
+Vector scale(Vector v, double s){
+    return Vector(v.x*s, v.y*s);
+}
+
+point translate(point p, Vector v){
+    return point(p.x+v.x, p.y+v.y);
+}
+
+double norm(Vector v){
+    return sqrt(v.x*v.x + v.y*v.y);
+}
+
+double dot(Vector a, Vector b){
+    return (a.x*b.x + a.y*b.y);
+}
+
+double cross(Vector a, Vector b){
+    return (a.x*b.y - a.y*b.x);
+}
+
+// return true if point p is on the same line as AB
+bool collinear(point a, point b, point p){
+    return (abs(cross(points2vector(a,b), points2vector(a,p)))<eps);
+}
+
+//return true if point p is on the left side of line AB
+bool ccw(point a, point b, point p){
+    return (cross(points2vector(a,b), points2vector(a,p))>0.0);
+}
+
+//return angle between 2 vectors
+double angleRad(Vector ba, Vector bc){
+    return acos(dot(ba,bc)/(norm(ba)*norm(bc)));
+}
+
 int main()
 {
-    line a=points2line(point(1,1),point(5,1));
-    line b=points2line(point(6,5),point(6,4));
+    point a(0,4),b(0,0),c(7,0);
+    Vector ba=points2vector(b,a);
+    Vector bc=points2vector(b,c);
 
-    point p;
-    cout<<areIntersect(a,b,p)<<endl;
-    cout<<p.x<<" "<<p.y<<endl;
-
+    cout<<angleRad(ba,bc)*180/pi<<endl;
 
     return 0;
 }
