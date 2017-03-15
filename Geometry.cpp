@@ -184,13 +184,63 @@ double angleRad(Vector ba, Vector bc){
     return acos(dot(ba,bc)/(norm(ba)*norm(bc)));
 }
 
+/*
+    p is the point, ab is the line.
+    pc is the perpendicular to the line.
+    ab.ap = |ab||ap|cos(theta)
+    |ap|cos(theta) = ab.ap/|ab|
+    |ap|cos(theta) also called |ac|, the projection on line ab.
+    so ac=u.|ac| where u is the unit vector.
+    or, ac=(ab/|ab|)*|ac|
+    or, ac=(ab/|ab|)*(ab.ap)/|ab|
+    or, ac=ab.((ab.ap)/|ab|^2)
+    or, ac=ab.x where x=(ab.ap)/|ab|^2
+    hence point c = translation(point a, vector ac)
+*/
+//distance between a point and a line
+//return distance and save distance point
+double dist2line(point a, point b, point p, point& c){
+    Vector ap=points2vector(a,p);
+    Vector ab=points2vector(a,b);
+
+    double x=dot(ab,ap)/(norm(ab)*norm(ab));
+    Vector ac=scale(ab,x);
+    c=translate(a,ac);
+
+    return dist(p,c);
+}
+
+/*
+    If the point is on left of starting point of line,
+    Then it creates 90+ angle, and dot product becomes negative.
+
+    If the point is on right of ending point of line,
+    Then projection of position vector of the point on line
+    becomes greater than the magnitude of line.
+*/
+double dist2lineSegment(point a, point b, point p, point& c){
+    Vector ap=points2vector(a,p);
+    Vector ab=points2vector(a,b);
+
+    if(dot(ab,ap)<0.0){
+        c=point(a.x,a.y);
+        return dist(a,p);
+    }
+
+    double projection=dot(ab,ap)/norm(ab);
+    if(projection>norm(ab)){
+        c=point(b.x,b.y);
+        return dist(b,p);
+    }
+
+    return dist2line(a,b,p,c);
+}
+
 int main()
 {
-    point a(0,4),b(0,0),c(7,0);
-    Vector ba=points2vector(b,a);
-    Vector bc=points2vector(b,c);
-
-    cout<<angleRad(ba,bc)*180/pi<<endl;
+    point a(0,0), b(0,4), p(-2,6), c(2,0);
+    cout<<dist2lineSegment(a,b,p,c)<<endl;
+    cout<<c.x<<" "<<c.y<<endl;
 
     return 0;
 }
