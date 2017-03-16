@@ -66,6 +66,8 @@ T rotate(T a, double theta){
              a.x*sin(theta)+a.y*cos(theta));
 }
 
+//***************************************************//
+
 
 //line
 struct line{
@@ -136,6 +138,7 @@ bool areIntersect(line a, line b, point& p){
     else p.y=-(b.a*p.x+b.c);
     return true;
 }
+//*************************************************//
 
 //vector
 struct Vector{
@@ -234,6 +237,67 @@ double dist2lineSegment(point a, point b, point p, point& c){
     }
 
     return dist2line(a,b,p,c);
+}
+//**************************************************//
+
+//circle
+
+//return 0 if inside, 1 for border, 2 for outside
+//good choice is using all integers
+template<class T>
+int insideCircle(T p, T c, double r){
+    double dx=p.x-c.x, dy=p.y-c.y;
+    double eq=dx*dx+dy*dy;
+    double rSq=r*r;
+
+    if(eq<rSq) return 0;
+    if(abs(eq-rSq)<eps) return 1;
+    return 2;
+}
+
+double circumference(double r){
+    return 2*pi*r;
+}
+
+double area(double r){
+    return pi*r*r;
+}
+
+double arcLength(double r, double theta){
+    return circumference(r)*theta/360.0;
+}
+
+//sector is the area bounded by 2 radius and arc
+double sector(double r, double theta){
+    return area(r)*theta/360.0;
+}
+
+/*
+    Chord makes a triangle with sides chord, radius, radius.
+    Chord is the opposite to theta.
+    Using cosine rule,
+    cos(theta)=(a^2+b^2-c^2)/2ab
+    or, cos(theta) = (r^2+r^2-chord^2)/2rr
+    or, 2r^2cos(theta) = 2r^2-chord^2
+    or, chord^2 = 2r^2-2r^2cos(theta)
+    or, chord^2 = 2r^2(1-cos(theta))
+    or, chord = sqrt(2r^2(1-cos(theta)))
+*/
+//chord
+double chordLength(double r, double theta){
+    return sqrt(2*r*r*(1-cos(theta)));
+}
+
+//segment is the area bounded by chord and arc
+//segment=sector-triangle with sides chord, r, r
+double segment(double r, double chord){
+    double s=(chord+r+r)/2;
+    double triangleArea=sqrt(s*(s-chord)*(s-r)*(s-r));
+
+    double theta=acos(1-(chord*chord/(2*r*r)));
+    double sectorArea=sector(r,theta);
+
+    return sectorArea-triangleArea;
 }
 
 int main()
