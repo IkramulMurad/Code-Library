@@ -6,137 +6,119 @@ const double pi=acos(-1);
 const double eps=1e-9;
 
 //point
-struct pointInt{
-    int x,y;
-
-    pointInt(){
-        x=y=0;
-    }
-
-    pointInt(int _x, int _y){
-        x=_x; y=_y;
-    }
-
-    bool operator<(pointInt& b){
-        if(x==b.x)
-            return y<b.y;
-        else return x<b.x;
-    }
-
-    bool operator==(pointInt& b){
-        return (x==b.x and y==b.y);
-    }
-};
-
-struct point{
-    double x,y;
-
-    point(){
-        x=y=0.0;
-    }
-
-    point(double _x, double _y){
-        x=_x; y=_y;
-    }
-
-    bool operator<(point& b){
-        if(abs(x-b.x)<eps)
-            return y<b.y;
-        else return x<b.x;
-    }
-
-    bool operator==(point& b){
-        return (abs(x-b.x)<eps and abs(y-b.y)<eps);
-    }
-};
-
 template <class T>
-double dist(T a, T b){
-    return hypot(a.x-b.x, a.y-b.y);
-}
+class Point{
+public:
+    T x, y;
+
+    Point(T _x = 0, T _y = 0){
+        x = _x;  y = _y;
+    }
+
+    bool operator<(Point& b){
+        if(abs(x - b.x) < eps)
+            return y < b.y;
+        else return x < b.x;
+    }
+
+    bool operator==(Point& b){
+        return (abs(x - b.x) < eps and abs(y - b.y) < eps);
+    }
+
+    double dist(Point b){
+        return hypot(x - b.x, y - b.y);
+    }
+
+    Point rotate(double theta){
+        theta = theta * pi / 180.0;
+        return Point(x * cos(theta) - y * sin(theta),
+                     x * sin(theta) + y * cos(theta));
+    }
+};
 
 double deg2rad(double deg){
-    return deg*pi/180;
-}
-
-template <class T>
-T rotate(T a, double theta){
-    theta=deg2rad(theta);
-    return T(a.x*cos(theta)-a.y*sin(theta),
-             a.x*sin(theta)+a.y*cos(theta));
+    return deg * pi / 180.0;
 }
 
 //***************************************************//
 
 
 //line
-struct line{
+class Line{
+public:
     double a,b,c;
-};
+    Line(){}
 
-/*
+    /*
     m=(y2-y1)/(x2-x1)
-
     y-y1 = m(x-x1)
     or, y-mx = y1-mx1
     or, -mx + y + (mx1-y1) =0
     hence, a=-m, b=1, c=mx1-y1
-
     for vertical line,
     m=(y2-y1)/(x2-x1)=undefined=1/0
-
     y-y1=m(x-x1)
     or, (y-y1)/m=x-x1
     or, 0=x-x1
     or, x+0-x1=0
     hence, a=1, b=0, c=-x1
-*/
-//make standard form
-line points2line(point a, point b){
-    line l;
-    if(abs(a.x-b.x)<eps){
-        l.a=1.0; l.b=0.0; l.c=-a.x;
+    */
+
+    //another function is described outside of class
+    //make standard form
+    template <class T>
+    Line(Point<T> p, Point<T> q){
+        if(abs(p.x - q.x) < eps){
+            a = 1.0;
+            b = 0.0;
+            c = -p.x;
+        }
+        else{
+            double m = (q.y - p.y) / (q.x - p.x);
+            a = -m;
+            b = 1.0;
+            c = m * p.x - p.y;
+        }
     }
-    else{
-        double m=(b.y-a.y)/(b.x-a.x);
-        l.a=-m;
-        l.b=1.0;
-        l.c=m*a.x-a.y;
+
+    bool are_parallel(Line B){
+        return (abs(a - B.a) < eps and abs(b - B.b) < eps);
     }
-    return l;
-}
 
-bool areParallel(line a, line b){
-    return (abs(a.a-b.a)<eps and abs(a.b-b.b)<eps);
-}
+    bool are_same(Line B){
+        return (are_parallel(B) and abs(c - B.c) < eps);
+    }
 
-bool areSame(line a, line b){
-    return (areParallel(a,b) and abs(a.c-b.c)<eps);
-}
-
-/*
+    /*
     a1x+b1y+c1=0
     a2x+b2y+c2=0
-
     so, y=(-a1x-c1)/b1
     and y=(-a2x-c2)/b2
-
     hence, (-a1x-c1)/b1=(-a2x-c2)/b2
     or, x(a2b1-a1b2)=b2c1-b1c2
     so, x=(b2c1-b1c2)/(a2b1-a1b2)
-*/
+    */
 
-bool areIntersect(line a, line b, point& p){
-    if(areParallel(a,b)) return false;
+    template <class T>
+    bool are_intersect(Line B, Point<T> &p){
+        if(are_parallel(B)) return false;
 
-    p.x=(b.b*a.c-a.b*b.c)/(b.a*a.b-a.a*b.b);
+        p.x = (B.b * c - b * B.c) / (B.a * b - a * B.b);
+        //checking vertical line
+        //if one line is vertical then b=0 and
+        //other line is not vertical as they are not parallel
+        if(abs(b) > eps) p.y = -(a * p.x + c);
+        else p.y = -(B.a * p.x + B.c);
 
-    //checking vertical line
-    //if one line is vertical then b=0 and
-    //other line is not vertical as they are not parallel
-    if(abs(a.b)>eps) p.y=-(a.a*p.x+a.c);
-    else p.y=-(b.a*p.x+b.c);
-    return true;
+        return true;
+    }
+
+};
+
+template <class T>
+Line points_to_line(Point<T> a, Point<T> b){
+    Line L(a, b);
+    return L;
 }
 //*************************************************//
 
@@ -302,9 +284,16 @@ double segment(double r, double chord){
 
 int main()
 {
-    point a(0,0), b(0,4), p(-2,6), c(2,0);
-    cout<<dist2lineSegment(a,b,p,c)<<endl;
-    cout<<c.x<<" "<<c.y<<endl;
+    Point<double> a(0,0), x(0,4), b(2,0), q(-2,6), c(4,4), d(0,0);
+
+    Line A(a,b), B(c,x);
+    Line C = points_to_line(q,d);
+    cout << C.a << " " << C.b << " " << C.c << endl;
+
+    cout << A.are_parallel(B) << endl;
+    cout << A.are_same(B) << endl;
+    cout << A.are_intersect(B,q) << endl;
+    cout << q.x << " " << q.y << endl;
 
     return 0;
 }
